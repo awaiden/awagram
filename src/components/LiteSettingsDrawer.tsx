@@ -2,11 +2,13 @@ import * as React from "react";
 import {
   BadgeCheck,
   CircleDashed,
+  Code2,
   Compass,
   Download,
   ExternalLink,
   EyeOff,
   Film,
+  Info,
   Loader2,
   MessageSquareOff,
   Search,
@@ -15,6 +17,7 @@ import {
   Sparkles,
   UserMinus,
   UserX,
+  Zap,
 } from "lucide-react";
 import { OPEN_DRAWER_EVENT, type LitePrefs } from "../core";
 import {
@@ -98,7 +101,7 @@ const SETTING_ROWS: SettingRow[] = [
   },
 ];
 
-type DrawerTab = "settings" | "non-followers";
+type DrawerTab = "settings" | "non-followers" | "about";
 
 export const LiteSettingsDrawer: React.FC<LiteSettingsDrawerProps> = ({
   initialPrefs,
@@ -248,13 +251,15 @@ export const LiteSettingsDrawer: React.FC<LiteSettingsDrawerProps> = ({
           <DrawerDescription>
             {activeTab === "settings"
               ? "Toggle distracting Instagram features on or off."
-              : "List accounts that don't follow you back via Instagram Web API."}
+              : activeTab === "non-followers"
+                ? "List accounts that don't follow you back via Instagram Web API."
+                : "Open-source, distraction-free Instagram wrapper."}
           </DrawerDescription>
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns: "1fr 1fr 1fr",
               gap: "6px",
               padding: "4px",
               marginTop: "10px",
@@ -268,7 +273,7 @@ export const LiteSettingsDrawer: React.FC<LiteSettingsDrawerProps> = ({
               type="button"
               onClick={() => setActiveTab("settings")}
               style={{
-                padding: "7px 10px",
+                padding: "7px 8px",
                 borderRadius: "8px",
                 fontSize: "12px",
                 fontWeight: 600,
@@ -285,7 +290,7 @@ export const LiteSettingsDrawer: React.FC<LiteSettingsDrawerProps> = ({
               type="button"
               onClick={() => setActiveTab("non-followers")}
               style={{
-                padding: "7px 10px",
+                padding: "7px 8px",
                 borderRadius: "8px",
                 fontSize: "12px",
                 fontWeight: 600,
@@ -295,7 +300,24 @@ export const LiteSettingsDrawer: React.FC<LiteSettingsDrawerProps> = ({
                 color: activeTab === "non-followers" ? "#09090b" : "#a1a1aa",
               }}
             >
-              Not Following Back
+              Not Following
+            </button>
+            <button
+              id="ig-lite-tab-about"
+              type="button"
+              onClick={() => setActiveTab("about")}
+              style={{
+                padding: "7px 8px",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: 600,
+                cursor: "pointer",
+                border: "none",
+                backgroundColor: activeTab === "about" ? "#fafafa" : "transparent",
+                color: activeTab === "about" ? "#09090b" : "#a1a1aa",
+              }}
+            >
+              About
             </button>
           </div>
         </DrawerHeader>
@@ -335,6 +357,138 @@ export const LiteSettingsDrawer: React.FC<LiteSettingsDrawerProps> = ({
                 </label>
               );
             })}
+          </div>
+        ) : activeTab === "about" ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              padding: "8px 20px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "14px",
+                borderRadius: "14px",
+                backgroundColor: "#18181b",
+                border: "1px solid #27272a",
+              }}
+            >
+              <div
+                style={{
+                  width: "44px",
+                  height: "44px",
+                  borderRadius: "12px",
+                  backgroundColor: "#09090b",
+                  border: "1px solid #3f3f46",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fafafa",
+                  flexShrink: 0,
+                }}
+              >
+                <Zap className="h-5 w-5" />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "15px", fontWeight: 700, color: "#fafafa" }}>
+                    awagram
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      padding: "2px 6px",
+                      borderRadius: "9999px",
+                      backgroundColor: "#27272a",
+                      color: "#d4d4d8",
+                    }}
+                  >
+                    v0.1.0 · MIT
+                  </span>
+                </div>
+                <span style={{ fontSize: "12px", color: "#a1a1aa" }}>
+                  Built by Halil Aydın (@awaiden) with Tauri v2, Rust & React
+                </span>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+                padding: "12px 14px",
+                borderRadius: "14px",
+                backgroundColor: "#18181b",
+                border: "1px solid #27272a",
+                fontSize: "12px",
+                color: "#d4d4d8",
+                lineHeight: 1.5,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#fafafa", fontWeight: 600 }}>
+                <Info className="h-4 w-4" />
+                <span>Quick Tips</span>
+              </div>
+              <span style={{ color: "#a1a1aa" }}>
+                • Shake your phone (or press <strong style={{ color: "#e4e4e7" }}>Ctrl/Cmd + Shift + L</strong>) on any page to open this drawer.
+              </span>
+              <span style={{ color: "#a1a1aa" }}>
+                • All preferences, whitelist entries, and non-follower cache stay 100% local on your device.
+              </span>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+              <a
+                href="https://github.com/awaiden/awagram"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  padding: "10px 12px",
+                  borderRadius: "12px",
+                  backgroundColor: "#fafafa",
+                  color: "#09090b",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                }}
+              >
+                <Code2 className="h-4 w-4" />
+                <span>GitHub Repo</span>
+              </a>
+              <a
+                href="https://github.com/awaiden/awagram/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  padding: "10px 12px",
+                  borderRadius: "12px",
+                  backgroundColor: "#18181b",
+                  border: "1px solid #3f3f46",
+                  color: "#fafafa",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                }}
+              >
+                <ExternalLink className="h-4 w-4" />
+                <span>Report Issue</span>
+              </a>
+            </div>
           </div>
         ) : (
           <div className="flex flex-col gap-2.5 px-5 py-2">

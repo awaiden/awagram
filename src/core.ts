@@ -107,27 +107,17 @@ html.ig-lite-hide-reels [data-ig-lite-blocked-icon="reels"] {
   justify-content: center !important;
 }
 
-html.ig-lite-hide-reels [data-ig-lite-blocked-icon="reels"] > svg {
-  opacity: 0.35 !important;
+html.ig-lite-hide-reels [data-ig-lite-blocked-icon="reels"] > svg:not([data-ig-lite-lock]) {
+  display: none !important;
 }
 
-html.ig-lite-hide-reels [data-ig-lite-blocked-icon="reels"]::after {
-  content: "BLOCKED" !important;
-  position: absolute !important;
-  top: -6px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  background: #dc2626 !important;
-  color: #ffffff !important;
-  font-size: 7px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.04em !important;
-  padding: 1px 4px !important;
-  border-radius: 4px !important;
-  line-height: 1.1 !important;
-  white-space: nowrap !important;
-  pointer-events: none !important;
-  z-index: 5 !important;
+html.ig-lite-hide-reels [data-ig-lite-blocked-icon="reels"] > svg[data-ig-lite-lock] {
+  display: block !important;
+  opacity: 0.45 !important;
+}
+
+html:not(.ig-lite-hide-reels) [data-ig-lite-blocked-icon="reels"] > svg[data-ig-lite-lock] {
+  display: none !important;
 }
 
 html.ig-lite-hide-explore [data-ig-lite-hidden="explore"] {
@@ -354,6 +344,35 @@ function markHidden(el: Element | null, category: string): void {
   }
 }
 
+function createLockSvg(): SVGSVGElement {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("data-ig-lite-lock", "true");
+  svg.setAttribute("aria-label", "Reels Locked");
+  svg.setAttribute("width", "24");
+  svg.setAttribute("height", "24");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+
+  const body = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  body.setAttribute("width", "18");
+  body.setAttribute("height", "11");
+  body.setAttribute("x", "3");
+  body.setAttribute("y", "11");
+  body.setAttribute("rx", "2");
+  body.setAttribute("ry", "2");
+  svg.appendChild(body);
+
+  const shackle = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  shackle.setAttribute("d", "M7 11V7a5 5 0 0 1 10 0v4");
+  svg.appendChild(shackle);
+
+  return svg;
+}
+
 function markNavBlocked(selector: string, category: string): void {
   const nodes = document.querySelectorAll(selector);
   for (const node of nodes) {
@@ -389,6 +408,9 @@ function markNavBlocked(selector: string, category: string): void {
     ) {
       if (iconBox.getAttribute("data-ig-lite-blocked-icon") !== category) {
         iconBox.setAttribute("data-ig-lite-blocked-icon", category);
+      }
+      if (!iconBox.querySelector('svg[data-ig-lite-lock="true"]')) {
+        iconBox.appendChild(createLockSvg());
       }
     }
   }
