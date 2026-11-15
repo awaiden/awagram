@@ -409,7 +409,7 @@ export const LiteSettingsDrawer: React.FC<LiteSettingsDrawerProps> = ({
                       color: "#d4d4d8",
                     }}
                   >
-                    v0.1.1 · MIT
+                    v0.1.2 · MIT
                   </span>
                 </div>
                 <span style={{ fontSize: "12px", color: "#a1a1aa" }}>
