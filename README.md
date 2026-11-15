@@ -34,3 +34,8 @@ npm run tauri dev
 # Android APK/AAB build
 npm run tauri android build
 ```
+
+## Contributing & License
+
+- Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
+- Licensed under the [MIT License](LICENSE).
