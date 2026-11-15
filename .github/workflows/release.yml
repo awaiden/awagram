@@ -106,8 +106,27 @@ jobs:
       - name: Build Android APK
         run: npm run tauri android build -- --apk
 
+      - name: Sign Android APK
+        run: |
+          UNSIGNED_APK=$(find src-tauri/gen/android/app/build/outputs/apk -name "*release-unsigned.apk" | head -n 1)
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/35.0.0"
+          keytool -genkeypair -v \
+            -keystore /tmp/awagram-release.jks \
+            -alias awagram \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass awagram-release -keypass awagram-release \
+            -dname "CN=awagram, O=awaiden, C=TR"
+          "$BUILD_TOOLS/zipalign" -p -f 4 "$UNSIGNED_APK" /tmp/awagram-aligned.apk
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks /tmp/awagram-release.jks \
+            --ks-key-alias awagram \
+            --ks-pass pass:awagram-release \
+            --key-pass pass:awagram-release \
+            --out awagram-android.apk \
+            /tmp/awagram-aligned.apk
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: awagram-android-apk
-          path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+          path: awagram-android.apk
