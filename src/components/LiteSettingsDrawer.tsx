@@ -409,7 +409,7 @@ export const LiteSettingsDrawer: React.FC<LiteSettingsDrawerProps> = ({
                       color: "#d4d4d8",
                     }}
                   >
-                    v0.1.0 · MIT
+                    v0.1.1 · MIT
                   </span>
                 </div>
                 <span style={{ fontSize: "12px", color: "#a1a1aa" }}>
@@ -437,7 +437,8 @@ export const LiteSettingsDrawer: React.FC<LiteSettingsDrawerProps> = ({
                 <span>Quick Tips</span>
               </div>
               <span style={{ color: "#a1a1aa" }}>
-                • Shake your phone (or press <strong style={{ color: "#e4e4e7" }}>Ctrl/Cmd + Shift + L</strong>) on any page to open this drawer.
+                • Long-press the locked Reels icon, shake your phone, or press{" "}
+                <strong style={{ color: "#e4e4e7" }}>Ctrl/Cmd + Shift + L</strong> on any page to open this drawer.
               </span>
               <span style={{ color: "#a1a1aa" }}>
                 • All preferences, whitelist entries, and non-follower cache stay 100% local on your device.

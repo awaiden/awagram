@@ -92,7 +92,7 @@ html.ig-lite-hide-reels [data-ig-lite-hidden="reels"] {
 }
 
 html.ig-lite-hide-reels [data-ig-lite-blocked="reels"] {
-  pointer-events: none !important;
+  pointer-events: auto !important;
   cursor: not-allowed !important;
 }
 
@@ -417,6 +417,9 @@ function markNavBlocked(selector: string, category: string): void {
 }
 
 function scanReelsCarousels(): void {
+  // Only hide Reels carousels on the home feed; never touch profile/search grids
+  if ((window.location?.pathname || "/") !== "/") return;
+
   const regions = document.querySelectorAll('section, div[role="region"]');
   for (const region of regions) {
     if (isInsideRoot(region)) continue;
@@ -465,7 +468,7 @@ function findCompactPromptContainer(el: Element): Element {
   let current: Element | null = el;
   let candidate: Element = el;
 
-  for (let depth = 0; depth < 5 && current; depth++) {
+  for (let depth = 0; depth < 3 && current; depth++) {
     const parent: Element | null = current.parentElement;
     if (
       !parent ||
@@ -473,18 +476,20 @@ function findCompactPromptContainer(el: Element): Element {
       parent === document.documentElement ||
       parent.tagName === "MAIN" ||
       parent.tagName === "NAV" ||
-      parent.querySelector("main, article, [role='article']")
+      parent.tagName === "HEADER" ||
+      parent.querySelector("main, article, [role='article'], h1, h2, nav, input")
     ) {
       break;
     }
 
     const role = parent.getAttribute("role");
-    if (role === "banner" || role === "dialog" || parent.tagName === "HEADER") {
+    if (role === "banner" || role === "dialog") {
       return parent;
     }
 
-    if (parent.parentElement === document.body) {
-      return parent;
+    // Stop before walking into a large container with multiple unrelated controls
+    if (parent.children.length > 3) {
+      break;
     }
 
     candidate = parent;
@@ -611,6 +616,7 @@ export function ensureNavbarSettingsButton(): boolean {
 
   if (existing) return true;
 
+  // 1. Try "For you" / "Following" label in the top bar
   const candidates = document.querySelectorAll(
     'header span, header div, header a, header button, h1, h2, div[role="button"] span, div[role="button"]'
   );
@@ -620,24 +626,41 @@ export function ensureNavbarSettingsButton(): boolean {
     if (!NAVBAR_FEED_LABELS.has(text)) continue;
 
     let target: Element = el;
-    for (let i = 0; i < 4 && target.parentElement; i++) {
+    for (let i = 0; i < 6 && target.parentElement; i++) {
       const parent = target.parentElement;
       if (parent === document.body || parent === document.documentElement) break;
-      const role = target.getAttribute("role");
-      if (
-        (role === "button" ||
-          target.tagName === "BUTTON" ||
-          target.tagName === "A" ||
-          parent.tagName === "HEADER" ||
-          parent.children.length >= 2) &&
-        parent.children.length >= 2
-      ) {
+      if (parent.children.length >= 2) {
         const btn = createNavbarSettingsButton();
         parent.insertBefore(btn, target);
         return true;
       }
       target = parent;
     }
+  }
+
+  // 2. Fallback on home ("/"): Instagram wordmark or top <header> row
+  const igLogo = document.querySelector(
+    'header svg[aria-label="Instagram"], svg[aria-label="Instagram"]'
+  );
+  if (igLogo && !isInsideRoot(igLogo)) {
+    let target: Element = igLogo;
+    for (let i = 0; i < 5 && target.parentElement; i++) {
+      const parent = target.parentElement;
+      if (parent === document.body || parent === document.documentElement) break;
+      if (parent.children.length >= 2) {
+        const btn = createNavbarSettingsButton();
+        parent.insertBefore(btn, target);
+        return true;
+      }
+      target = parent;
+    }
+  }
+
+  const header = document.querySelector("header");
+  if (header && !isInsideRoot(header)) {
+    const btn = createNavbarSettingsButton();
+    header.insertBefore(btn, header.firstChild);
+    return true;
   }
 
   return false;
@@ -835,9 +858,9 @@ export function setupShakeToOpen(): void {
     lastY = y;
     lastZ = z;
 
-    if (delta > 26) {
+    if (delta > 14) {
       const now = Date.now();
-      if (now - lastSpikeAt < 600) {
+      if (now - lastSpikeAt < 700) {
         spikeCount += 1;
       } else {
         spikeCount = 1;
@@ -851,6 +874,32 @@ export function setupShakeToOpen(): void {
       }
     }
   });
+
+  // Long-press (450ms) on the locked Reels tab opens Settings on any page
+  let holdTimer: number | null = null;
+  const clearHold = () => {
+    if (holdTimer !== null) {
+      window.clearTimeout(holdTimer);
+      holdTimer = null;
+    }
+  };
+  document.addEventListener(
+    "touchstart",
+    (event: TouchEvent) => {
+      const target = event.target as Element | null;
+      if (!target || typeof target.closest !== "function") return;
+      if (!target.closest('[data-ig-lite-blocked="reels"]')) return;
+      clearHold();
+      holdTimer = window.setTimeout(() => {
+        holdTimer = null;
+        window.dispatchEvent(new CustomEvent(OPEN_DRAWER_EVENT));
+      }, 450);
+    },
+    { passive: true, capture: true }
+  );
+  document.addEventListener("touchend", clearHold, { passive: true, capture: true });
+  document.addEventListener("touchcancel", clearHold, { passive: true, capture: true });
+  document.addEventListener("touchmove", clearHold, { passive: true, capture: true });
 
   window.addEventListener("keydown", (event: KeyboardEvent) => {
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key?.toLowerCase() === "l") {
