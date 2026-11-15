@@ -1,0 +1,15 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "remote": {
+    "urls": ["https://www.instagram.com/*", "https://*.instagram.com/*"]
+  },
+  "permissions": [
+    "core:default",
+    "core:window:default",
+    "core:webview:default",
+    "opener:default"
+  ]
+}

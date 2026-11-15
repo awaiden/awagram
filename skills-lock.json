@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "skills": {
+    "app-launch-checklist": {
+      "source": "awaiden/skills",
+      "sourceType": "github",
+      "skillPath": "skills/app-launch-checklist/SKILL.md",
+      "computedHash": "9c35e64a6779cec10041c77be15519eea552744347e1313984d638ebba36e7e2"
+    },
+    "pre-release-checklist": {
+      "source": "awaiden/skills",
+      "sourceType": "github",
+      "skillPath": "skills/pre-release-checklist/SKILL.md",
+      "computedHash": "bc7150bd26fda681ee31925a8ee223084040a4e83bced4f037f104f4fe2d7d0f"
+    }
+  }
+}
